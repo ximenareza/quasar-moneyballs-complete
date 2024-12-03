@@ -1,16 +1,5 @@
-export function useCurrencify(amount) {
-  // format: "+ $ 4,999.99"
-
-  let posNegSymbol = "";
-  if (amount > 0) posNegSymbol = "+";
-  else if (amount < 0) posNegSymbol = "-";
-
-  const currencySymbol = "$",
-    amountPositive = Math.abs(amount),
-    amountFormatted = amountPositive.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-
-  return `${posNegSymbol} ${currencySymbol} ${amountFormatted}`;
+export function useAmountColorClass(amount) {
+  if (amount > 0) return "text-positive";
+  else if (amount < 0) return "text-negative";
+  else return "text-grey-6";
 }
