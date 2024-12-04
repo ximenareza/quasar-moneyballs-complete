@@ -7,7 +7,7 @@
         v-for="entry in entries"
         :key="entry.id"
        
-        @right="onEntrySlideRight"
+        @right="onEntrySlideRight($event,entry)"
         left-color="positive"
         right-color="negative"
         >
@@ -101,9 +101,14 @@
   */
 
 import { ref, computed, reactive, setBlockTracking, openBlock } from "vue";
-import { uid } from "quasar";
+import { uid, useQuasar } from "quasar";
 import { useCurrencify } from "src/use/useCurrencity";
 import { useAmountColorClass } from "src/use/useAmountColorClass";
+
+
+/*queasar*/
+
+const $q = useQuasar()
 
 /*
    entries
@@ -179,6 +184,56 @@ const addEntry = () =>{
 }
 
 /*
-*
+slide items
+
+*/
+
+const onEntrySlideRight= ({reset}, entry) =>{
+
+  $q.dialog({
+        title: 'Delete Entri',
+        message: `delete this entry?
+        <div class="q-mt-md text-weight-bold ${useAmountColorClass
+        (entry.amount)}">
+          ${entry.name} : ${ useCurrencify(entry.amount)}
+          </div>
+        `,
+      
+        cancel: true,
+        persistent: true,
+        html:true,
+
+        ok:{
+          label:'Delete',
+          color:'negative',
+          noCaps: true
+        },
+
+        cancel:{
+          color:'primary',
+          noCaps: true
+        }
+
+
+      }).onOk(() => {
+         deleteEntry(entry.id)
+      
+      }).onCancel(() => {
+         reset()
+      })
+    }
+
+    /*
+    delete entry
+    */
+
+    const deleteEntry = entryId  => {
+      const index = entries.value.findIndex(entry => entry.id === entryId)
+     entries.value.splice(index,1)
+     $q.notify({
+      message:'entry deleted',
+      position:'top'
+     })
+    }
 
 </script>
