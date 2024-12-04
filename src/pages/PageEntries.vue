@@ -2,7 +2,28 @@
   <q-page>
     <div class="q-pa-md">
       <q-list bordered separator>
-        <q-item v-for="entry in entries" :key="entry.id">
+
+        <q-slide-item 
+        v-for="entry in entries"
+        :key="entry.id"
+       
+        @right="onEntrySlideRight"
+        left-color="positive"
+        right-color="negative"
+        >
+          <!--<template v-slot:left>
+            <q-icon name="done"/>
+          </template>-->
+
+          <template v-slot:right>
+            <q-icon name="delete"/>
+          </template>
+
+
+
+        <q-item>
+
+
           <q-item-section
             class="text-weight-bold"
             :class="useAmountColorClass(entry.amount)"
@@ -18,18 +39,36 @@
             {{ useCurrencify(entry.amount) }}
           </q-item-section>
         </q-item>
+
+
+      </q-slide-item>
       </q-list>
     </div>
 
-    <q-footer class="transparent">
-      <div class="row q-px-md q-py-sm shadow-up-3">
-        <div class="col text-grey-7 text-h6">Balance:</div>
-        <div class="col text-grey-7 text-h6 text-right">+ $3,999.00</div>
+    <q-footer
+     class="transparent">
+
+
+      <div class="row q-mb-sm q-px-md q-py-sm shadow-up-3">
+        <div class="col text-grey-7 text-h6">
+          Balance:
+        </div>
+        <div 
+        :class="useAmountColorClass(balance)"
+        class="col  text-h6 text-right">
+          {{useCurrencify( balance) }}
+        </div>
       </div>
-      <div class="row q-pa-sm q-col-gutter-sm bg-primary">
+     <q-form
+      @submit="addEntry"
+      class="row q-px-sm q-pb-sm q-col-gutter-sm bg-primary"
+      >
+
+
         <div class="col">
           <q-input
-            v-model="text"
+            v-model="addEntryFrom.name"
+            ref="nameRef"
             placeholder="Name"
             bg-color="white"
             outlined
@@ -38,6 +77,7 @@
         </div>
         <div class="col">
           <q-input
+           v-model.number="addEntryFrom.amount"
             input-class="text-right"
             placeholder="Amount"
             bg-color="white"
@@ -48,9 +88,9 @@
           />
         </div>
         <div class="col-auto">
-          <q-btn round color="primary" icon="add" />
+          <q-btn round color="primary" type="submit" icon="add" />
         </div>
-      </div>
+      </q-form>
     </q-footer>
   </q-page>
 </template>
@@ -60,7 +100,8 @@
    imports
   */
 
-import { ref } from "vue";
+import { ref, computed, reactive, setBlockTracking, openBlock } from "vue";
+import { uid } from "quasar";
 import { useCurrencify } from "src/use/useCurrencity";
 import { useAmountColorClass } from "src/use/useAmountColorClass";
 
@@ -70,24 +111,74 @@ import { useAmountColorClass } from "src/use/useAmountColorClass";
 
 const entries = ref([
   {
-    id: "i1d",
+    id: "id1",
     name: "Salary",
     amount: 4999.99,
   },
   {
-    id: "i2d",
+    id: "id2",
     name: "Rent",
     amount: -999,
   },
   {
-    id: "i3d",
+    id: "id3",
     name: "Phone",
     amount: -14.99,
   },
   {
-    id: "i4d",
+    id: "id4",
     name: "Unknow",
     amount: 0,
   },
 ]);
+
+
+/*balance*/
+
+const balance = computed(() => {
+return entries.value.reduce((accumulator,{amount})=>
+   {
+    return accumulator + amount
+  },0)
+})
+ 
+/*add entry*/
+
+
+const nameRef = ref(null)
+
+
+const addEntryFromDeafault ={
+
+  name:'',
+  amount: null
+}
+
+const addEntryFrom = reactive({
+ ...addEntryFromDeafault
+})
+
+const addEntryFromReset = () =>{
+  Object.assign(addEntryFrom, addEntryFromDeafault)
+  nameRef.value.focus()
+}
+
+
+const addEntry = () =>{
+  //const newEntry = {
+   // id: uid(),
+    //name:addEntryFrom.name,
+    //amount:addEntryFrom.amount
+  //}
+
+  const newEntry = Object.assign({},addEntryFrom,{id: uid()})
+  entries.value.push(newEntry)
+  addEntryFromReset()
+
+
+}
+
+/*
+*
+
 </script>
